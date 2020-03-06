@@ -54,6 +54,8 @@ class Simulation:
             custom simulation parameters that overwrite the
             default parameters defined in default_params.py
         """
+        print('GIT: ({})'.format(nest.version()))
+
         self.params = deepcopy(sim_params)
         if isinstance(sim_spec, dict):
             check_custom_params(sim_spec, self.params)
@@ -92,6 +94,9 @@ class Simulation:
         self.areas_simulated = self.params['areas_simulated']
         self.areas_recorded = self.params['recording_dict']['areas_recorded']
         self.T = self.params['t_sim']
+
+        self.time_create = 0
+        self.time_connect = 0
 
     def __eq__(self, other):
         # Two simulations are equal if the simulation parameters and
@@ -158,6 +163,8 @@ class Simulation:
                               'rng_seeds': list(range(master_seed + 1,
                                                       master_seed + vp + 1))})
 
+        nest.set_verbosity('M_INFO')
+
         nest.SetDefaults(self.network.params['neuron_params']['neuron_model'],
                          self.network.params['neuron_params']['single_neuron_dict'])
         self.pyrngs = [np.random.RandomState(s) for s in list(range(
@@ -193,6 +200,8 @@ class Simulation:
         for area_name in self.areas_simulated:
             a = Area(self, self.network, area_name)
             self.areas.append(a)
+            self.time_create += a.time_create
+            self.time_connect += a.time_connect
             print("Memory after {0} : {1:.2f} MB".format(area_name, self.memory() / 1024.))
 
     def cortico_cortical_input(self):
@@ -300,9 +309,21 @@ class Simulation:
 
         self.save_network_gids()
 
-        nest.Simulate(self.T)
+        print("Network size:", nest.GetKernelStatus('network_size'))
+        print("Saved network in {0:2f} seconds.".format(time.time() - t3))
+
         t4 = time.time()
-        self.time_simulate = t4 - t3
+        nest.Prepare()
+        nest.Run(10.)
+        self.time_init = time.time() - t4
+        self.init_memory = self.memory()
+        print("Init time in {0:.2f} seconds.".format(self.time_init))
+
+        t5 = time.time()
+        nest.Run(self.T)
+        nest.Cleanup()
+        t6 = time.time()
+        self.time_simulate = t6 - t5
         self.total_memory = self.memory()
         print("Simulated network in {0:.2f} seconds.".format(self.time_simulate))
         self.logging()
@@ -311,10 +332,7 @@ class Simulation:
         """
         Use NEST's memory wrapper function to record used memory.
         """
-        try:
-            mem = nest.ll_api.sli_func('memory_thisjob')
-        except AttributeError:
-            mem = nest.sli_func('memory_thisjob')
+        mem = nest.ll_api.sli_func('memory_thisjob')
         if isinstance(mem, dict):
             return mem['heap']
         else:
@@ -325,14 +343,22 @@ class Simulation:
         Write runtime and memory for the first 30 MPI processes
         to file.
         """
+        d = {'time_prepare': self.time_prepare,
+             'time_network_local': self.time_network_local,
+             'time_network_global': self.time_network_global,
+             'time_init': self.time_init,
+             'time_simulate': self.time_simulate,
+             'base_memory': self.base_memory,
+             'network_memory': self.network_memory,
+             'init_memory': self.init_memory,
+             'total_memory': self.total_memory,
+             'time_create': self.time_create,
+             'time_connect':self.time_connect,
+             'num_connections': nest.GetKernelStatus('num_connections'),
+             'local_spike_counter': nest.GetKernelStatus('local_spike_counter')}
+        print(d)
+        
         if nest.Rank() < 30:
-            d = {'time_prepare': self.time_prepare,
-                 'time_network_local': self.time_network_local,
-                 'time_network_global': self.time_network_global,
-                 'time_simulate': self.time_simulate,
-                 'base_memory': self.base_memory,
-                 'network_memory': self.network_memory,
-                 'total_memory': self.total_memory}
             fn = os.path.join(self.data_dir,
                               'recordings',
                               '_'.join((self.label,
@@ -402,9 +428,13 @@ class Area:
         for pop in self.populations:
             self.external_synapses[pop] = self.network.K[self.name][pop]['external']['external']
 
+        t0 = time.time()
         self.create_populations()
+        t1 = time.time()
+        self.time_create = t1 - t0
         self.connect_devices()
         self.connect_populations()
+        self.time_connect = time.time() - t1
         print("Rank {}: created area {} with {} local nodes".format(nest.Rank(),
                                                                     self.name,
                                                                     self.num_local_nodes))
