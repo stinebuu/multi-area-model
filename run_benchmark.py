@@ -53,10 +53,10 @@ if NEST_version == 2:
                        theory=True,
                        theory_spec=theory_params)
 elif NEST_version == 3:
-    M = MultiAreaModel3(network_params, simulation=True,
-                        sim_spec=sim_params,
-                        theory=True,
-                        theory_spec=theory_params)
+    M = MultiAreaModel_3(network_params, simulation=True,
+                         sim_spec=sim_params,
+                         theory=True,
+                         theory_spec=theory_params)
 
 print(M.label)
 print(M.simulation.label)
