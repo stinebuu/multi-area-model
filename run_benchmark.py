@@ -3,7 +3,7 @@ import os
 import sys
 import json
 
-from multiarea_model import MultiAreaModel#, MultiAreaModel3
+from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from config import base_path
 
 """
@@ -52,11 +52,11 @@ if NEST_version == 2:
                        sim_spec=sim_params,
                        theory=True,
                        theory_spec=theory_params)
-#elif NEST_version == 3:
-#    M = MultiAreaModel3(network_params, simulation=True,
-#                        sim_spec=sim_params,
-#                        theory=True,
-#                        theory_spec=theory_params)
+elif NEST_version == 3:
+    M = MultiAreaModel3(network_params, simulation=True,
+                        sim_spec=sim_params,
+                        theory=True,
+                        theory_spec=theory_params)
 
 print(M.label)
 print(M.simulation.label)
