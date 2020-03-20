@@ -1,10 +1,12 @@
 import numpy as np
 import os
 import sys
+import shutil
 import json
+import nest
 
 from multiarea_model import MultiAreaModel, MultiAreaModel_3
-from config import base_path
+from config import base_path, data_path
 
 """
 Create parameters.
@@ -48,11 +50,13 @@ sim_params = {'t_sim': t_sim,
 theory_params = {'dt': 0.1}
 
 if NEST_version == 2:
+    print("NEST version 2.x\n")
     M = MultiAreaModel(network_params, simulation=True,
                        sim_spec=sim_params,
                        theory=True,
                        theory_spec=theory_params)
 elif NEST_version == 3:
+    print("NEST version 3.0\n")
     M = MultiAreaModel_3(network_params, simulation=True,
                          sim_spec=sim_params,
                          theory=True,
@@ -63,4 +67,59 @@ print(M.simulation.label)
 
 p, r = M.theory.integrate_siegert()
 
+#M.simulation.simulate()
+
+print("dump parameters\n")
+
+labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}.json'.format(N_scaling, num_processes))
+labels_dict = {'network_label': M.label,
+               'simulation_label': M.simulation.label}
+print(labels_fn)
+
+with open(labels_fn, 'w') as f:
+    json.dump(labels_dict, f)
+
+
+print("load simulation and network labels\n")
+
+# Load simulation and network labels
+labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}.json'.format(N_scaling, num_processes))
+with open(labels_fn, 'r') as f:
+    labels = json.load(f)
+
+label = labels['simulation_label']
+network_label = labels['network_label']
+
+print("load simulation parameters\n")
+
+# Load simulation parameters
+fn = os.path.join(data_path, label, '_'.join(('custom_params', label)))
+with open(fn, 'r') as f:
+    custom_params = json.load(f)
+
+print("load parameters\n")
+
+# Copy custom param file for each MPI process
+for i in range(custom_params['sim_params']['num_processes']):
+    shutil.copy(fn, '_'.join((fn, str(i))))
+
+fn = os.path.join(data_path,
+                  label,
+                  '_'.join(('custom_params',
+                            label,
+                            str(nest.Rank()))))
+with open(fn, 'r') as f:
+    custom_params = json.load(f)
+
+os.remove(fn)
+
+if NEST_version == 2:
+    M = MultiAreaModel(network_label,
+                       simulation=True,
+                       sim_spec=custom_params['sim_params'])
+elif NEST_version == 3:
+    M = MultiAreaModel_3(network_label,
+                        simulation=True,
+                        sim_spec=custom_params['sim_params'])
+print("simulate\n")
 M.simulation.simulate()
