@@ -1,16 +1,9 @@
 import numpy as np
 import os
-#import sys
 import json
 
 from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from config import base_path
-
-#N_scaling = float(sys.argv[1])
-#num_processes = int(sys.argv[2])
-#t_sim = float(sys.argv[3])
-#K_scaling = float(sys.argv[4])
-#NEST_version = int(sys.argv[5])
 
 def create_params(N_scaling, num_processes, t_sim, K_scaling, NEST_version):
 
@@ -56,12 +49,6 @@ def create_params(N_scaling, num_processes, t_sim, K_scaling, NEST_version):
 
     p, r = M.theory.integrate_siegert()
 
-    print("dump parameters\n")
+    print("return labels")
 
-    labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}.json'.format(N_scaling, num_processes))
-    labels_dict = {'network_label': M.label,
-                   'simulation_label': M.simulation.label}
-    print(labels_fn)
-
-    with open(labels_fn, 'w') as f:
-        json.dump(labels_dict, f)
+    return M.label, M.simulation.label
