@@ -5,7 +5,6 @@ import shutil
 import json
 import nest
 
-from run_benchmark_createParams import create_params
 from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from config import base_path, data_path
 
@@ -25,12 +24,22 @@ t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
 NEST_version = int(sys.argv[5])
 
-print("create parameters")
 
-net_label, sim_label = create_params(N_scaling, num_processes, t_sim, K_scaling, NEST_version)
+print("load simulation and network labels\n")
 
-label = sim_label
-network_label = net_label
+if N_scaling < 1:
+    N_scaling = N_scaling*1000
+N_scaling = int(N_scaling)
+
+# Load simulation and network labels
+labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}_{}_{}.json'.format(N_scaling, num_processes, int(t_sim), NEST_version))
+
+print(labels_fn)
+with open(labels_fn, 'r') as f:
+    labels = json.load(f)
+
+label = labels['simulation_label']
+network_label = labels['network_label']
 
 print("load simulation parameters\n")
 
