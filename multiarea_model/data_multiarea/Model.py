@@ -63,10 +63,10 @@ def compute_Model_params(out_label='', mode='default'):
     """
     Load data
     """
-    with open(raw_fn, 'r') as f:
-        raw_data = json.load(f)
-    with open(proc_fn, 'r') as f:
-        processed_data = json.load(f)
+    with open(raw_fn, 'r', encoding='utf-8', errors='ignore') as f:
+        raw_data = json.load(f, strict=False)
+    with open(proc_fn, 'r', encoding='utf-8', errors='ignore') as f:
+        processed_data = json.load(f, strict=False)
 
     FLN_EDR_completed = processed_data['FLN_completed']
     SLN_Data = processed_data['SLN_completed']
