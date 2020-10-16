@@ -78,13 +78,14 @@ class Theory:
                               'use_wfr': False,
                               'print_time': False,
                               'overwrite_files': True})
+
+        nest.SetDefaults('siegert_neuron', self.NP)
         # create neurons for external drive
         drive = nest.Create(
             'siegert_neuron', 1, params={'rate': rate_ext, 'mean': rate_ext})
 
         # create neurons representing populations
-        neurons = nest.Create(
-            'siegert_neuron', dim, params=self.NP)
+        neurons = nest.Create('siegert_neuron', dim)
         # external drive
         syn_dict = {'drift_factor': tau * np.array([K[:, -1] * J[:, -1]]).transpose(),
                     'diffusion_factor': tau * np.array([K[:, -1] * J[:, -1]**2]).transpose(),
@@ -132,7 +133,7 @@ class Theory:
         interval = self.params['rec_interval']
         if interval is None:
             interval = dt
-            
+
         multimeter = nest.Create('multimeter', params={'record_from': ['rate'],
                                                        'interval': interval,
                                                        'to_screen': False,
@@ -294,9 +295,6 @@ class Theory:
             rates = np.hstack((rates, self.network.params['input_params']['rate_ext']))
         else:
             rates = np.hstack((rates, np.zeros(1)))
-        # if dist:
-        #     # due to distributed weights with std = 0.1
-        #     J2[:, :7] += 0.01 * J[:, :7] * J[:, :7]
         C_m = self.network.params['neuron_params']['single_neuron_dict']['C_m']
         mu = self.NP['tau_m'] * 1e-3 * np.dot(KJ, rates) + mu_CC + self.NP[
             'tau_m'] / C_m * self.network.add_DC_drive
