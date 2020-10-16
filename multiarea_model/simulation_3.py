@@ -174,15 +174,15 @@ class Simulation:
         """
         Create devices for all populations. Depending on the
         configuration, this will create:
-        - spike detector
+        - spike recorder
         - voltmeter
         """
-        self.spike_detector = nest.Create('spike_detector')
+        self.spike_recorder = nest.Create('spike_recorder')
         status_dict = deepcopy(self.params['recording_dict']['spike_dict'])
         label = '-'.join((self.label,
                           status_dict['label']))
         status_dict.update({'label': label})
-        self.spike_detector.set(status_dict)
+        self.spike_recorder.set(status_dict)
 
         if self.params['recording_dict']['record_vm']:
             self.voltmeter = nest.Create('voltmeter')
@@ -496,7 +496,7 @@ class Area:
                 # Always record spikes from all neurons to get correct
                 # statistics
                 nest.Connect(self.gids[pop],
-                             self.simulation.spike_detector)
+                             self.simulation.spike_recorder)
 
         if self.simulation.params['recording_dict']['record_vm']:
             for pop in self.populations:

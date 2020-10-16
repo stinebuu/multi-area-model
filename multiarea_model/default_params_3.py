@@ -243,7 +243,7 @@ recording_dict = {
     # in each population if record_vm is True
     'Nrec_vm_fraction': 0.01,
 
-    # Parameters for the spike detectors
+    # Parameters for the spike recorders
     'spike_dict': {
         'label': 'spikes',
         'record_to': 'ascii',
