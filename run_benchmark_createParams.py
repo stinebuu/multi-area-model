@@ -3,14 +3,14 @@ import os
 import sys
 import json
 
-from multiarea_model import MultiAreaModel, MultiAreaModel_3
+from multiarea_model import MultiAreaModel, MultiAreaModel_3, MultiAreaModel_rng
 from config import base_path
 
 N_scaling = float(sys.argv[1])
 num_processes = int(sys.argv[2])
 t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
-NEST_version = int(sys.argv[5])
+NEST_version = sys.argv[5]
 
 conn_params = {#'replace_non_simulated_areas': 'het_poisson_stat',
                'g': -11.,
@@ -36,18 +36,24 @@ sim_params = {'t_sim': t_sim,
 
 theory_params = {'dt': 0.1}
 
-if NEST_version == 2:
+if NEST_version == '2':
     print("NEST version 2.x\n")
     M = MultiAreaModel(network_params, simulation=True,
                        sim_spec=sim_params,
                        theory=True,
                        theory_spec=theory_params)
-elif NEST_version == 3:
+elif NEST_version == '3':
     print("NEST version 3.0\n")
     M = MultiAreaModel_3(network_params, simulation=True,
                          sim_spec=sim_params,
                          theory=True,
                          theory_spec=theory_params)
+elif NEST_version == 'rng':
+    print("NEST version rng\n")
+    M = MultiAreaModel_rng(network_params, simulation=True,
+                           sim_spec=sim_params,
+                           theory=True,
+                           theory_spec=theory_params)
 
 print(M.label)
 print(M.simulation.label)

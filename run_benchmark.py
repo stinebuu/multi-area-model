@@ -5,7 +5,7 @@ import shutil
 import json
 import nest
 
-from multiarea_model import MultiAreaModel, MultiAreaModel_3
+from multiarea_model import MultiAreaModel, MultiAreaModel_3, MultiAreaModel_rng
 from config import base_path, data_path
 
 """
@@ -22,7 +22,7 @@ N_scaling = float(sys.argv[1])
 num_processes = int(sys.argv[2])
 t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
-NEST_version = int(sys.argv[5])
+NEST_version = sys.argv[5]
 
 
 print("load simulation and network labels\n")
@@ -64,13 +64,17 @@ with open(fn, 'r') as f:
 
 os.remove(fn)
 
-if NEST_version == 2:
+if NEST_version == '2':
     M = MultiAreaModel(network_label,
                        simulation=True,
                        sim_spec=custom_params['sim_params'])
-elif NEST_version == 3:
+elif NEST_version == '3':
     M = MultiAreaModel_3(network_label,
                         simulation=True,
                         sim_spec=custom_params['sim_params'])
+elif NEST_version == 'rng':
+    M = MultiAreaModel_rng(network_label,
+                           simulation=True,
+                           sim_spec=custom_params['sim_params'])
 print("simulate\n")
 M.simulation.simulate()
