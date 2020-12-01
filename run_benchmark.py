@@ -15,7 +15,7 @@ Run as
 
 mpirun/srun python run_benchmark.py N_scaling num_processes t_sim K_scaling nest_version
 
-nest_version can be 2 or 3
+nest_version can be 2, 3 or rng
 """
 
 N_scaling = float(sys.argv[1])
@@ -48,21 +48,7 @@ fn = os.path.join(data_path, label, '_'.join(('custom_params', label)))
 with open(fn, 'r') as f:
     custom_params = json.load(f)
 
-print("load parameters\n")
-
-# Copy custom param file for each MPI process
-for i in range(custom_params['sim_params']['num_processes']):
-    shutil.copy(fn, '_'.join((fn, str(i))))
-
-fn = os.path.join(data_path,
-                  label,
-                  '_'.join(('custom_params',
-                            label,
-                            str(nest.Rank()))))
-with open(fn, 'r') as f:
-    custom_params = json.load(f)
-
-os.remove(fn)
+print("Create network and simulate\n")
 
 if NEST_version == '2':
     M = MultiAreaModel(network_label,
