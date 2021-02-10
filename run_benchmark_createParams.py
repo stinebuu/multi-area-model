@@ -6,11 +6,12 @@ import json
 from multiarea_model import MultiAreaModel, MultiAreaModel_3, MultiAreaModel_rng
 from config import base_path
 
-N_scaling = float(sys.argv[1])
-num_processes = int(sys.argv[2])
-t_sim = float(sys.argv[3])
-K_scaling = float(sys.argv[4])
-NEST_version = sys.argv[5]
+# parameters set by JUBE
+N_scaling = {N_scaling}
+K_scaling = {K_scaling}
+t_sim = {t_sim}
+num_processes = {num_processes}
+NEST_version = {NEST_version}
 
 conn_params = {#'replace_non_simulated_areas': 'het_poisson_stat',
                'g': -11.,
