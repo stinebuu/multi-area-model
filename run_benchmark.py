@@ -6,6 +6,7 @@ import json
 import nest
 
 from multiarea_model import MultiAreaModel, MultiAreaModel_3, MultiAreaModel_rng
+from multiarea_model.multiarea_helpers import write_out_timer_data
 from config import base_path, data_path
 
 """
@@ -23,6 +24,7 @@ num_processes = int(sys.argv[2])
 t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
 NEST_version = sys.argv[5]
+STDOUT_PATH = sys.argv[6]
 
 
 print("load simulation and network labels\n")
@@ -64,3 +66,6 @@ elif NEST_version == 'rng':
                            sim_spec=custom_params['sim_params'])
 print("simulate\n")
 M.simulation.simulate()
+
+# Write out timer data
+write_out_timer_data(STDOUT_PATH)
