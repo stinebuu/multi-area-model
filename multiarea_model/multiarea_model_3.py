@@ -62,7 +62,7 @@ dicthash.FLOOR_SMALL_FLOATS = True
 
 class MultiAreaModel_3:
     def __init__(self, network_spec, theory=False, simulation=False,
-                 analysis=False, *args, **keywords):
+                 analysis=False, data_path=None, *args, **keywords):
         """
         Multiarea model class.
         An instance of the multiarea model with the given parameters.
@@ -224,7 +224,7 @@ class MultiAreaModel_3:
         self.theory = Theory(self, theory_spec)
 
     def init_simulation(self, sim_spec):
-        self.simulation = Simulation(self, sim_spec)
+        self.simulation = Simulation(self, sim_spec, data_path)
 
     def init_analysis(self, ana_spec):
         assert(hasattr(self, 'simulation'))

@@ -24,7 +24,7 @@ import shutil
 import time
 
 from .analysis_helpers import _load_npy_to_dict, model_iter
-from config import base_path, data_path
+from config import base_path
 from copy import deepcopy
 from .default_params_3 import nested_update, sim_params
 from .default_params_3 import check_custom_params
@@ -38,7 +38,7 @@ except ImportError:
 
 
 class Simulation:
-    def __init__(self, network, sim_spec):
+    def __init__(self, network, sim_spec, data_path):
         """
         Simulation class.
         An instance of the simulation class with the given parameters.

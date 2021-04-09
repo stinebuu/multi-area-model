@@ -3,7 +3,7 @@ import os
 import sys
 import json
 
-from multiarea_model import MultiAreaModel, MultiAreaModel_3, MultiAreaModel_rng
+from multiarea_model import MultiAreaModel, MultiAreaModel_3#, MultiAreaModel_rng
 from config import base_path
 
 N_scaling = float(sys.argv[1])
@@ -11,6 +11,8 @@ num_processes = int(sys.argv[2])
 t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
 NEST_version = sys.argv[5]
+data_path = sys.argv[6]
+data_folder_hash = sys.argv[7]
 
 conn_params = {#'replace_non_simulated_areas': 'het_poisson_stat',
                'g': -11.,
@@ -48,28 +50,20 @@ elif NEST_version == '3':
                          sim_spec=sim_params,
                          theory=True,
                          theory_spec=theory_params)
-elif NEST_version == 'rng':
-    print("NEST version rng\n")
-    M = MultiAreaModel_rng(network_params, simulation=True,
-                           sim_spec=sim_params,
-                           theory=True,
-                           theory_spec=theory_params)
+# elif NEST_version == 'rng':
+#     print("NEST version rng\n")
+#     M = MultiAreaModel_rng(network_params, simulation=True,
+#                            sim_spec=sim_params,
+#                            theory=True,
+#                            theory_spec=theory_params)
 
 print(M.label)
 print(M.simulation.label)
 
 p, r = M.theory.integrate_siegert()
+print("Mean-field theory predicts an average "
+      "rate of {0:.3f} spikes/s across all populations.".format(np.mean(r[:, -1])))
 
-print("dump parameters\n")
+start_job(M.simulation.label, data_path, data_folder_hash)
 
-if N_scaling < 1:
-    N_scaling = N_scaling*1000
-N_scaling = int(N_scaling)
 
-labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}_{}_{}.json'.format(N_scaling, num_processes, int(t_sim), NEST_version))
-labels_dict = {'network_label': M.label,
-               'simulation_label': M.simulation.label}
-print(labels_fn)
-
-with open(labels_fn, 'w') as f:
-    json.dump(labels_dict, f)

@@ -62,7 +62,7 @@ dicthash.FLOOR_SMALL_FLOATS = True
 
 class MultiAreaModel:
     def __init__(self, network_spec, theory=False, simulation=False,
-                 analysis=False, *args, **keywords):
+                 analysis=False, data_path=None, *args, **keywords):
         """
         Multiarea model class.
         An instance of the multiarea model with the given parameters.
@@ -95,10 +95,10 @@ class MultiAreaModel:
             print("RAND_DATA_LABEL", rand_data_label)
             tmp_parameter_fn = os.path.join(base_path,
                                             p_,
-                                            'custom_{}_parameter_dict.json'.format(rand_data_label))
+                                            'custom_parameter_dict.json')
             tmp_data_fn = os.path.join(base_path,
                                        p_,
-                                       'custom_Data_Model_{}.json'.format(rand_data_label))
+                                       'custom_Data_Model.json')
 
             with open(tmp_parameter_fn, 'w') as f:
                 json.dump(self.custom_params, f)
@@ -109,10 +109,10 @@ class MultiAreaModel:
             print("Initializing network from label.")
             parameter_fn = os.path.join(base_path,
                                         'config_files',
-                                        '{}_config'.format(network_spec))
+                                        '_config')
             tmp_data_fn = os.path.join(base_path,
                                        'config_files',
-                                       'custom_Data_Model_{}.json'.format(network_spec))
+                                       'custom_Data_Model.json')
             with open(parameter_fn, 'r') as f:
                 self.custom_params = json.load(f)
         nested_update(self.params, self.custom_params)
@@ -221,7 +221,7 @@ class MultiAreaModel:
         self.theory = Theory(self, theory_spec)
 
     def init_simulation(self, sim_spec):
-        self.simulation = Simulation(self, sim_spec)
+        self.simulation = Simulation(self, sim_spec, data_path)
 
     def init_analysis(self, ana_spec):
         assert(hasattr(self, 'simulation'))

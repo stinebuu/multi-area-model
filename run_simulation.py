@@ -16,22 +16,22 @@ import nest
 import os
 import sys
 
-from config import data_path
 from multiarea_model import MultiAreaModel
 
-label = sys.argv[1]
-network_label = sys.argv[2]
+data_path = sys.argv[1]
+data_folder_hash = sys.argv[2]
+
 fn = os.path.join(data_path,
-                  label,
+                  data_folder_hash,
                   '_'.join(('custom_params',
-                            label,
                            str(nest.Rank()))))
 with open(fn, 'r') as f:
     custom_params = json.load(f)
 
 os.remove(fn)
 
-M = MultiAreaModel(network_label,
+M = MultiAreaModel('benchmark',
                    simulation=True,
-                   sim_spec=custom_params['sim_params'])
+                   sim_spec=custom_params['sim_params'],
+                   data_path=data_path)
 M.simulation.simulate()
