@@ -343,21 +343,32 @@ class Simulation:
         Write runtime and memory for the first 30 MPI processes
         to file.
         """
-        d = {'time_prepare': self.time_prepare,
-             'time_network_local': self.time_network_local,
-             'time_network_global': self.time_network_global,
-             'time_init': self.time_init,
-             'time_simulate': self.time_simulate,
+        d = {'py_time_prepare': self.time_prepare,
+             'py_time_network_local': self.time_network_local,
+             'py_time_network_global': self.time_network_global,
+             'py_time_init': self.time_init,
+             'py_time_simulate': self.time_simulate,
+             'py_time_create': self.time_create,
+             'py_time_connect': self.time_connect,
              'base_memory': self.base_memory,
              'network_memory': self.network_memory,
              'init_memory': self.init_memory,
              'total_memory': self.total_memory,
-             'time_create': self.time_create,
-             'time_connect':self.time_connect,
              'num_connections': nest.GetKernelStatus('num_connections'),
-             'local_spike_counter': nest.GetKernelStatus('local_spike_counter')}
+             'local_spike_counter': nest.GetKernelStatus('local_spike_counter'),
+             'time_collocate_spike_data': nest.GetKernelStatus('time_collocate_spike_data'),
+             'time_communicate_spike_data': nest.GetKernelStatus('time_communicate_spike_data'),
+             'time_communicate_target_data': nest.GetKernelStatus('time_communicate_target_data'),
+             'time_deliver_spike_data': nest.GetKernelStatus('time_deliver_spike_data'),
+             'time_gather_spike_data': nest.GetKernelStatus('time_gather_spike_data'),
+             'time_gather_target_data': nest.GetKernelStatus('time_gather_target_data'),
+             'time_update': nest.GetKernelStatus('time_update'),
+             'time_communicate_prepare': nest.GetKernelStatus('time_communicate_prepare'),
+             'time_construction_connect': nest.GetKernelStatus('time_construction_connect'),
+             'time_construction_create': nest.GetKernelStatus('time_construction_create'),
+             'time_simulate': nest.GetKernelStatus('time_simulate')}
         print(d)
-        
+
         fn = os.path.join(self.data_dir,
                           'recordings',
                           '_'.join((self.label,

@@ -67,5 +67,8 @@ elif NEST_version == 'rng':
 print("simulate\n")
 M.simulation.simulate()
 
+data_dir = M.simulation.data_dir
+label = M.simulation.label
+
 # Write out timer data
-write_out_timer_data(STDOUT_PATH)
+write_out_timer_data(STDOUT_PATH, data_dir, label)
