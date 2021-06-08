@@ -31,7 +31,6 @@ convert_syn_weight : Convert a PSC amplitude into an integral of the PSP
 import json
 import numpy as np
 import os
-import re
 from glob import glob
 from itertools import product
 try:
@@ -113,17 +112,17 @@ def write_out_timer_data(STDOUT_PATH, data_dir, label):
     time_simulate = np.mean(time_simulate)
 
     with open(os.path.join(STDOUT_PATH, 'timer_data.txt'), "w") as outF:
-        outF.write('time_collocate_spike_data' + str(time_collocate_spike_data) + '\n')
-        outF.write('time_communicate_spike_data' + str(time_communicate_spike_data) + '\n')
-        outF.write('time_communicate_target_data' + str(time_communicate_target_data) + '\n')
-        outF.write('time_deliver_spike_data' + str(time_deliver_spike_data) + '\n')
-        outF.write('time_gather_spike_data' + str(time_gather_spike_data) + '\n')
-        outF.write('time_gather_target_data' + str(time_gather_target_data) + '\n')
-        outF.write('time_update' + str(time_update) + '\n')
-        outF.write('time_communicate_prepare' + str(time_communicate_prepare) + '\n')
-        outF.write('time_construction_connect' + str(time_construction_connect) + '\n')
-        outF.write('time_construction_create' + str(time_construction_create) + '\n')
-        outF.write('time_simulate' + str(time_simulate) + '\n')
+        outF.write('time_collocate_spike_data ' + str(time_collocate_spike_data) + '\n')
+        outF.write('time_communicate_spike_data ' + str(time_communicate_spike_data) + '\n')
+        outF.write('time_communicate_target_data ' + str(time_communicate_target_data) + '\n')
+        outF.write('time_deliver_spike_data ' + str(time_deliver_spike_data) + '\n')
+        outF.write('time_gather_spike_data ' + str(time_gather_spike_data) + '\n')
+        outF.write('time_gather_target_data ' + str(time_gather_target_data) + '\n')
+        outF.write('time_update ' + str(time_update) + '\n')
+        outF.write('time_communicate_prepare ' + str(time_communicate_prepare) + '\n')
+        outF.write('time_construction_connect ' + str(time_construction_connect) + '\n')
+        outF.write('time_construction_create ' + str(time_construction_create) + '\n')
+        outF.write('time_simulate ' + str(time_simulate) + '\n')
 
 
 def write_out_KernelStatus():
