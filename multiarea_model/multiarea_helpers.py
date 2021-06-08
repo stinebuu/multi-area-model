@@ -45,7 +45,7 @@ from nested_dict import nested_dict
 import nest
 
 
-def write_out_timer_data(STDOUT_PATH, data_dir, label):
+def write_out_timer_data(data_dir, label):
     """
     This function writes out measures taken with internal instrumentation of
     the code. MPI processes write to private logfiles using the json
@@ -96,7 +96,7 @@ def write_out_timer_data(STDOUT_PATH, data_dir, label):
     for m in d:
         d[m] = np.mean(d[m])
 
-    with open(os.path.join(STDOUT_PATH, 'timer_data.txt'), "w") as outF:
+    with open('timer_data.txt', "w") as outF:
         for m in d:
             outF.write(m + ' ' + str(d[m]) + '\n')
 

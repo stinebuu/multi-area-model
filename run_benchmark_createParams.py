@@ -3,7 +3,7 @@ import os
 import sys
 import json
 
-from multiarea_model import MultiAreaModel, MultiAreaModel_3, MultiAreaModel_rng
+from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from config import base_path
 
 N_scaling = float(sys.argv[1])
@@ -32,7 +32,8 @@ network_params = {'N_scaling': N_scaling,
 sim_params = {'t_sim': t_sim,
               'num_processes': num_processes,
               'local_num_threads': 1,
-              'recording_dict': {'record_vm': False}}
+              'recording_dict': {'record_vm': False},
+              'master_seed': 1}
 
 theory_params = {'dt': 0.1}
 
