@@ -73,56 +73,32 @@ def write_out_timer_data(STDOUT_PATH, data_dir, label):
                 )
             )
 
-    time_collocate_spike_data = []
-    time_communicate_spike_data = []
-    time_communicate_target_data = []
-    time_deliver_spike_data = []
-    time_gather_spike_data = []
-    time_gather_target_data = []
-    time_update = []
-    time_communicate_prepare = []
-    time_construction_connect = []
-    time_construction_create = []
-    time_simulate = []
+    metrics = ['time_collocate_spike_data',
+               'time_communicate_spike_data',
+               'time_communicate_target_data',
+               'time_deliver_spike_data',
+               'time_gather_spike_data',
+               'time_gather_target_data',
+               'time_update',
+               'time_communicate_prepare',
+               'time_construction_connect',
+               'time_construction_create',
+               'time_simulate']
+
+    d = {key: list() for key in metrics}
+
     for logfile in all_logfiles:
         with open(logfile, 'r') as fn:
             f = json.load(fn)
-            time_collocate_spike_data.append(f['time_collocate_spike_data'])
-            time_communicate_spike_data.append(f['time_communicate_spike_data'])
-            time_communicate_target_data.append(f['time_communicate_target_data'])
-            time_deliver_spike_data.append(f['time_deliver_spike_data'])
-            time_gather_spike_data.append(f['time_gather_spike_data'])
-            time_gather_target_data.append(f['time_gather_target_data'])
-            time_update.append(f['time_update'])
-            time_communicate_prepare.append(f['time_communicate_prepare'])
-            time_construction_connect.append(f['time_construction_connect'])
-            time_construction_create.append(f['time_construction_create'])
-            time_simulate.append(f['time_simulate'])
+            for m in d:
+                d[m].append(f[m])
 
-    time_collocate_spike_data = np.mean(time_collocate_spike_data)
-    time_communicate_spike_data = np.mean(time_communicate_spike_data)
-    time_communicate_target_data = np.mean(time_communicate_target_data)
-    time_deliver_spike_data = np.mean(time_deliver_spike_data)
-    time_gather_spike_data = np.mean(time_gather_spike_data)
-    time_gather_target_data = np.mean(time_gather_target_data)
-    time_update = np.mean(time_update)
-    time_communicate_prepare = np.mean(time_communicate_prepare)
-    time_construction_connect = np.mean(time_construction_connect)
-    time_construction_create = np.mean(time_construction_create)
-    time_simulate = np.mean(time_simulate)
+    for m in d:
+        d[m] = np.mean(d[m])
 
     with open(os.path.join(STDOUT_PATH, 'timer_data.txt'), "w") as outF:
-        outF.write('time_collocate_spike_data ' + str(time_collocate_spike_data) + '\n')
-        outF.write('time_communicate_spike_data ' + str(time_communicate_spike_data) + '\n')
-        outF.write('time_communicate_target_data ' + str(time_communicate_target_data) + '\n')
-        outF.write('time_deliver_spike_data ' + str(time_deliver_spike_data) + '\n')
-        outF.write('time_gather_spike_data ' + str(time_gather_spike_data) + '\n')
-        outF.write('time_gather_target_data ' + str(time_gather_target_data) + '\n')
-        outF.write('time_update ' + str(time_update) + '\n')
-        outF.write('time_communicate_prepare ' + str(time_communicate_prepare) + '\n')
-        outF.write('time_construction_connect ' + str(time_construction_connect) + '\n')
-        outF.write('time_construction_create ' + str(time_construction_create) + '\n')
-        outF.write('time_simulate ' + str(time_simulate) + '\n')
+        for m in d:
+            outF.write(m + ' ' + str(d[m]) + '\n')
 
 
 def write_out_KernelStatus():
