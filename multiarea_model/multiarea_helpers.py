@@ -91,10 +91,16 @@ def write_out_timer_data(data_dir, label):
         with open(logfile, 'r') as fn:
             f = json.load(fn)
             for m in d:
-                d[m].append(f[m])
+                try:
+                    d[m].append(f[m])
+                except KeyError:
+                    pass
 
     for m in d:
-        d[m] = np.mean(d[m])
+        if d[m]:
+            d[m] = np.mean(d[m])
+        else:
+            d[m] = -1.
 
     with open('timer_data.txt', "w") as outF:
         for m in d:
