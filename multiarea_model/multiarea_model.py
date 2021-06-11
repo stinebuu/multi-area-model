@@ -62,7 +62,8 @@ dicthash.FLOOR_SMALL_FLOATS = True
 
 class MultiAreaModel:
     def __init__(self, network_spec, theory=False, simulation=False,
-                 analysis=False, data_path=None, *args, **keywords):
+                 analysis=False, data_path=None, data_folder_hash=None,
+                 *args, **keywords):
         """
         Multiarea model class.
         An instance of the multiarea model with the given parameters.
@@ -83,6 +84,8 @@ class MultiAreaModel:
             whether to create an instance of the analysis class as member.
 
         """
+        self.data_path = data_path
+        self.data_folder_hash = data_folder_hash
         self.params = deepcopy(network_params)
         if isinstance(network_spec, dict):
             print("Initializing network from dictionary.")
@@ -95,10 +98,10 @@ class MultiAreaModel:
             print("RAND_DATA_LABEL", rand_data_label)
             tmp_parameter_fn = os.path.join(base_path,
                                             p_,
-                                            'custom_parameter_dict.json')
+                                            'custom_{}_parameter_dict.json'.format(rand_data_label))
             tmp_data_fn = os.path.join(base_path,
                                        p_,
-                                       'custom_Data_Model.json')
+                                       'custom_Data_Model_{}.json'.format(rand_data_label))
 
             with open(tmp_parameter_fn, 'w') as f:
                 json.dump(self.custom_params, f)
@@ -221,7 +224,8 @@ class MultiAreaModel:
         self.theory = Theory(self, theory_spec)
 
     def init_simulation(self, sim_spec):
-        self.simulation = Simulation(self, sim_spec, data_path)
+        self.simulation = Simulation(self, sim_spec, self.data_path,
+                                     self.data_folder_hash)
 
     def init_analysis(self, ana_spec):
         assert(hasattr(self, 'simulation'))

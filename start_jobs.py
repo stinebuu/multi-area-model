@@ -27,7 +27,7 @@ def start_job(label, data_path, data_folder_hash,
 
     # Copy run_simulation script to simulation folder
     shutil.copy2(os.path.join(base_path, 'run_simulation.py'),
-                 os.path.join(data_path, data_folder_hash))
+                 os.path.join(data_path, data_folder_hash, 'run_simulation.py'))
 
     # Load simulation parameters
     fn = os.path.join(data_path,

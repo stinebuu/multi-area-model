@@ -38,7 +38,7 @@ except ImportError:
 
 
 class Simulation:
-    def __init__(self, network, sim_spec, data_path=None):
+    def __init__(self, network, sim_spec, data_path=None, data_folder_hash=None):
         """
         Simulation class.
         An instance of the simulation class with the given parameters.
@@ -56,6 +56,7 @@ class Simulation:
         """
         print('GIT: ({})'.format(nest.version()))
 
+        self.data_folder_hash = data_folder_hash
         self.params = deepcopy(sim_params)
         if isinstance(sim_spec, dict):
             check_custom_params(sim_spec, self.params)
@@ -75,7 +76,7 @@ class Simulation:
                                                        'network_label': self.network.label})
 
         print("Simulation label: {}".format(self.label))
-        self.data_dir = os.path.join(data_path, self.label)
+        self.data_dir = os.path.join(data_path, self.data_folder_hash)
         try:
             os.mkdir(self.data_dir)
             os.mkdir(os.path.join(self.data_dir, 'recordings'))
@@ -87,7 +88,7 @@ class Simulation:
              'network_params': self.network.custom_params,
              'network_label': self.network.label}
         with open(os.path.join(self.data_dir,
-                               '_'.join(('custom_params', self.label))), 'w') as f:
+                               'custom_params'), 'w') as f:
             json.dump(d, f)
         print("Initialized simulation class.")
 
