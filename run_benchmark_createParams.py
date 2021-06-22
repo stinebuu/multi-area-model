@@ -5,29 +5,22 @@ import json
 
 from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from config import base_path
+from figures.Schmidt2018_dyn.network_simulations import NEW_SIM_PARAMS
 
 N_scaling = float(sys.argv[1])
 num_processes = int(sys.argv[2])
 t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
 NEST_version = sys.argv[5]
+mam_state = sys.argv[6]  # Fig3: corresponds to figure 3 in schmidt et al. 2018: Groundstate
+                         # Fig5: corresponds to figure 5 in schmidt et al. 2018: Metastable
 
-conn_params = {#'replace_non_simulated_areas': 'het_poisson_stat',
-               'g': -11.,
-               'K_stable': os.path.join(base_path, 'K_stable.npy'),
-               'fac_nu_ext_TH': 1.2,
-               'fac_nu_ext_5E': 1.125,
-               'fac_nu_ext_6E': 1.41666667,
-               'av_indegree_V1': 3950.}
-input_params = {'rate_ext': 10.}
-neuron_params = {'V0_mean': -150.,
-                 'V0_sd': 50.}
-network_params = {'N_scaling': N_scaling,
-                  'K_scaling': K_scaling,
-                  'fullscale_rates': os.path.join(base_path, 'tests/fullscale_rates.json'),
-                  'input_params': input_params,
-                  'connection_params': conn_params,
-                  'neuron_params': neuron_params}
+network_params, _ = NEW_SIM_PARAMS[mam_state][0]
+
+network_params['connection_params']['K_stable'] = os.path.join(base_path, 'K_stable.npy')
+
+from IPython import embed
+embed()
 
 sim_params = {'t_sim': t_sim,
               'num_processes': num_processes,
