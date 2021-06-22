@@ -24,6 +24,8 @@ num_processes = int(sys.argv[2])
 t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
 NEST_version = sys.argv[5]
+mam_state = sys.argv[6]  # Fig3: corresponds to figure 3 in schmidt et al. 2018: Groundstate
+                         # Fig5: corresponds to figure 5 in schmidt et al. 2018: Metastable
 
 
 print("load simulation and network labels\n")
@@ -33,7 +35,7 @@ if N_scaling < 1:
 N_scaling = int(N_scaling)
 
 # Load simulation and network labels
-labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}_{}_{}.json'.format(N_scaling, num_processes, int(t_sim), NEST_version))
+labels_fn = os.path.join(base_path, f'label_files/labels_{N_scaling}_{num_processes}_{int(t_sim)}}_{NEST_version}_{mam_state}.json')
 
 print(labels_fn)
 with open(labels_fn, 'r') as f:

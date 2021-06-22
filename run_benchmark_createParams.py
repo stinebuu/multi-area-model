@@ -19,9 +19,6 @@ network_params, _ = NEW_SIM_PARAMS[mam_state][0]
 
 network_params['connection_params']['K_stable'] = os.path.join(base_path, 'K_stable.npy')
 
-from IPython import embed
-embed()
-
 sim_params = {'t_sim': t_sim,
               'num_processes': num_processes,
               'local_num_threads': 1,
@@ -60,7 +57,7 @@ if N_scaling < 1:
     N_scaling = N_scaling*1000
 N_scaling = int(N_scaling)
 
-labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}_{}_{}.json'.format(N_scaling, num_processes, int(t_sim), NEST_version))
+labels_fn = os.path.join(base_path, f'label_files/labels_{N_scaling}_{num_processes}_{int(t_sim)}}_{NEST_version}_{mam_state}.json')
 labels_dict = {'network_label': M.label,
                'simulation_label': M.simulation.label}
 print(labels_fn)
