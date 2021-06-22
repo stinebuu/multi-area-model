@@ -35,7 +35,7 @@ if N_scaling < 1:
 N_scaling = int(N_scaling)
 
 # Load simulation and network labels
-labels_fn = os.path.join(base_path, f'label_files/labels_{N_scaling}_{num_processes}_{int(t_sim)}}_{NEST_version}_{mam_state}.json')
+labels_fn = os.path.join(base_path, f'label_files/labels_{N_scaling}_{num_processes}_{int(t_sim)}_{NEST_version}_{mam_state}.json')
 
 print(labels_fn)
 with open(labels_fn, 'r') as f:
