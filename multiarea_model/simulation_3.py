@@ -159,9 +159,7 @@ class Simulation:
                               'overwrite_files': True,
                               'data_path': os.path.join(self.data_dir, 'recordings'),
                               'print_time': False,
-                              'grng_seed': master_seed,
-                              'rng_seeds': list(range(master_seed + 1,
-                                                      master_seed + vp + 1))})
+                              'rng_seed': master_seed})
 
         # nest.set_verbosity('M_INFO')
 
@@ -343,21 +341,32 @@ class Simulation:
         Write runtime and memory for the first 30 MPI processes
         to file.
         """
-        d = {'time_prepare': self.time_prepare,
-             'time_network_local': self.time_network_local,
-             'time_network_global': self.time_network_global,
-             'time_init': self.time_init,
-             'time_simulate': self.time_simulate,
+        d = {'py_time_prepare': self.time_prepare,
+             'py_time_network_local': self.time_network_local,
+             'py_time_network_global': self.time_network_global,
+             'py_time_init': self.time_init,
+             'py_time_simulate': self.time_simulate,
+             'py_time_create': self.time_create,
+             'py_time_connect': self.time_connect,
              'base_memory': self.base_memory,
              'network_memory': self.network_memory,
              'init_memory': self.init_memory,
              'total_memory': self.total_memory,
-             'time_create': self.time_create,
-             'time_connect':self.time_connect,
              'num_connections': nest.GetKernelStatus('num_connections'),
-             'local_spike_counter': nest.GetKernelStatus('local_spike_counter')}
+             'local_spike_counter': nest.GetKernelStatus('local_spike_counter'),
+             'time_collocate_spike_data': nest.GetKernelStatus('time_collocate_spike_data'),
+             'time_communicate_spike_data': nest.GetKernelStatus('time_communicate_spike_data'),
+             'time_communicate_target_data': nest.GetKernelStatus('time_communicate_target_data'),
+             'time_deliver_spike_data': nest.GetKernelStatus('time_deliver_spike_data'),
+             'time_gather_spike_data': nest.GetKernelStatus('time_gather_spike_data'),
+             'time_gather_target_data': nest.GetKernelStatus('time_gather_target_data'),
+             'time_update': nest.GetKernelStatus('time_update'),
+             'time_communicate_prepare': nest.GetKernelStatus('time_communicate_prepare'),
+             'time_construction_connect': nest.GetKernelStatus('time_construction_connect'),
+             'time_construction_create': nest.GetKernelStatus('time_construction_create'),
+             'time_simulate': nest.GetKernelStatus('time_simulate')}
         print(d)
-        
+
         fn = os.path.join(self.data_dir,
                           'recordings',
                           '_'.join((self.label,
@@ -604,28 +613,39 @@ def connect(simulation,
             conn_spec = {'rule': 'fixed_total_number',
                          'N': int(synapses[target][source])}
 
-            syn_weight = {'distribution': 'normal_clipped',
-                          'mu': W[target][source],
-                          'sigma': W_sd[target][source]}
             if target_area == source_area:
                 if 'E' in source:
-                    syn_weight.update({'low': 0.})
+                    w_min = 0.
+                    w_max = np.Inf
                     mean_delay = network.params['delay_params']['delay_e']
                 elif 'I' in source:
-                    syn_weight.update({'high': 0.})
+                    w_min = np.NINF
+                    w_max = 0.
                     mean_delay = network.params['delay_params']['delay_i']
             else:
+                w_min = 0.
+                w_max = np.Inf
                 v = network.params['delay_params']['interarea_speed']
                 s = network.distances[target_area.name][source_area.name]
                 mean_delay = s / v
 
-            syn_delay = {'distribution': 'normal_clipped',
-                         'low': simulation.params['dt'],
-                         'mu': mean_delay,
-                         'sigma': mean_delay * network.params['delay_params']['delay_rel']}
-            syn_spec = {'weight': syn_weight,
-                        'delay': syn_delay,
-                        'model': 'static_synapse'}
+            syn_spec = {
+                'synapse_model': 'static_synapse',
+                'weight': nest.math.redraw(
+                    nest.random.normal(
+                        mean=W[target][source],
+                        std=W_sd[target][source]
+                        ),
+                    min=w_min,
+                    max=w_max
+                    ),
+                'delay': nest.math.redraw(
+                    nest.random.normal(
+                        mean=mean_delay,
+                        std=mean_delay * network.params['delay_params']['delay_rel']
+                        ),
+                    min=simulation.params['dt'],
+                    max=np.Inf)}
 
             nest.Connect(source_area.gids[source],
                          target_area.gids[target],

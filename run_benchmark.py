@@ -5,7 +5,7 @@ import shutil
 import json
 import nest
 
-from multiarea_model import MultiAreaModel, MultiAreaModel_3, MultiAreaModel_rng
+from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from multiarea_model.multiarea_helpers import write_out_timer_data
 from config import base_path, data_path
 
@@ -22,6 +22,8 @@ nest_version can be 2, 3 or rng
 data_path = sys.argv[1]
 data_folder_hash = sys.argv[2]
 NEST_version = sys.argv[3]
+mam_state = sys.argv[4]  # Fig3: corresponds to figure 3 in schmidt et al. 2018: Groundstate
+                         # Fig5: corresponds to figure 5 in schmidt et al. 2018: Metastable
 
 print("load simulation parameters\n")
 
@@ -49,5 +51,8 @@ elif NEST_version == 'rng':
 print("simulate\n")
 M.simulation.simulate()
 
+data_dir = M.simulation.data_dir
+label = M.simulation.label
+
 # Write out timer data
-write_out_timer_data(STDOUT_PATH)
+write_out_timer_data(data_dir, label)

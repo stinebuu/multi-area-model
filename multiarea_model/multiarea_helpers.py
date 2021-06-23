@@ -31,7 +31,7 @@ convert_syn_weight : Convert a PSC amplitude into an integral of the PSP
 import json
 import numpy as np
 import os
-import re
+from glob import glob
 from itertools import product
 try:
     from collections.abc import Iterable
@@ -45,84 +45,66 @@ from nested_dict import nested_dict
 import nest
 
 
-def write_out_timer_data(STDOUT_PATH):
+def write_out_timer_data(data_dir, label):
     """
     This function writes out measures taken with internal instrumentation of
-    the code. If the instrumentation is activated, one usually measures
-    delivery phase, update phase, communication phase, collocation phase and
-    the total time.  Probably only communication should be measured as this is
-    the most interesting metric and because all other measurements might lead
-    to performance degradation as they are implemented inside of omp barriers
-    and make other threads wait. The extraction of the timer data assumes that
-    there is a presimulation and simulation phase. The timer data is written to
-    stdout, irregardless of which phase we are in. If there are two simulation
-    calls of nest, i.e. a presim and sim phase, then one can savely assume that
-    the second half of the stdout was written during the main simulation phase.
-    Thus we only take the second half of matched patterns.
+    the code. MPI processes write to private logfiles using the json
+    dataformat. These json files are scanned for the timer metrics. Their mean
+    is taken and writen into a single text file. This single text file can
+    later be read by eg JUBE.
+
+    Parameters
+    ----------
+    STDOUT_PATH : string
+        Place to store extracted timer data to
+    data_dir : string
+        Directory of where simulation data is stored
+    label : string
+        Unique identifier of a given simulation
     """
-    total_time_pattern = r'0] Total time'
-    sim_time_pattern = r'0] Simulate time'
-    update_time_pattern = r'0] Update time:'
-    collocate_time_pattern = r'0] GatherSpikeData::collocate time:'
-    communicate_time_pattern = r'GatherSpikeData::communicate time:'
-    deliver_time_pattern = r'GatherSpikeData::deliver time:'
+    all_logfiles = glob(
+            os.path.join(
+                data_dir,
+                'recordings',
+                '_'.join((
+                    label,
+                    'logfile',
+                    '*'))
+                )
+            )
 
-    stdout_file = os.path.join(STDOUT_PATH, 'stdout')
+    metrics = ['time_collocate_spike_data',
+               'time_communicate_spike_data',
+               'time_communicate_target_data',
+               'time_deliver_spike_data',
+               'time_gather_spike_data',
+               'time_gather_target_data',
+               'time_update',
+               'time_communicate_prepare',
+               'time_construction_connect',
+               'time_construction_create',
+               'time_simulate']
 
-    total_time = grep_pattern_stdout(stdout_file, total_time_pattern)
-    sim_time = grep_pattern_stdout(stdout_file, sim_time_pattern)
-    update_timer = grep_pattern_stdout(stdout_file, update_time_pattern)
-    collocate_timer = grep_pattern_stdout(stdout_file, collocate_time_pattern)
-    communicate_timer = grep_pattern_stdout(stdout_file, communicate_time_pattern)
-    deliver_timer = grep_pattern_stdout(stdout_file, deliver_time_pattern)
+    d = {key: list() for key in metrics}
 
-    _, _, total_phase_total_timer = split_presim_sim_mean(total_time)
-    _, _, sim_phase_total_timer = split_presim_sim_mean(sim_time)
-    _, _, update_phase_total_timer = split_presim_sim_mean(update_timer)
-    _, _, collocate_phase_total_timer = split_presim_sim_mean(collocate_timer)
-    _, _, communicate_phase_total_timer = split_presim_sim_mean(communicate_timer)
-    _, _, deliver_phase_total_timer = split_presim_sim_mean(deliver_timer)
+    for logfile in all_logfiles:
+        with open(logfile, 'r') as fn:
+            f = json.load(fn)
+            for m in d:
+                try:
+                    d[m].append(f[m])
+                except KeyError:
+                    pass
 
-    outF = open(os.path.join(STDOUT_PATH, 'timer_data.txt'), "w")
-    outF.write('total_phase_total_timer: '+ str(total_phase_total_timer) + '\n')
-    outF.write('sim_phase_total_timer: '+ str(sim_phase_total_timer) + '\n')
-    outF.write('update_phase_total_timer: '+ str(update_phase_total_timer) + '\n')
-    outF.write('collocate_phase_total_timer: '+ str(collocate_phase_total_timer) + '\n')
-    outF.write('communicate_phase_total_timer: '+ str(communicate_phase_total_timer) + '\n')
-    outF.write('deliver_phase_total_timer: '+ str(deliver_phase_total_timer) + '\n')
-    outF.close()
+    for m in d:
+        if d[m]:
+            d[m] = np.mean(d[m])
+        else:
+            d[m] = -1.
 
-
-def grep_pattern_stdout(stdout_file, pattern, typ='float'):
-    sim_time = []
-    with open(stdout_file) as f:
-        for line in f:
-            if re.findall(pattern, line):
-                if typ == 'float':
-                    # The number is always at location [3], we can just take
-                    # this location and turn it into a float
-                    time_tmp = float(line.split()[3])
-                    sim_time.append(time_tmp)
-                elif typ == 'int':
-                    time_tmp = int(re.findall("\d+", line)[0])
-                    sim_time.append(time_tmp)
-    return np.array(sim_time)
-
-
-def split_presim_sim_mean(time_tmp, split=True):
-    # a is from the presim phase, b is presim and sim phase combined, c is only
-    # sim phase
-    length = len(time_tmp)
-    if split:
-        a = time_tmp[:length//2]
-        b = time_tmp[length//2:]
-        a = a.mean()
-        b = b.mean()
-        c = b - a
-        return a, b, c
-    else:
-        a = time_tmp.mean()
-        return a, a, a
+    with open('timer_data.txt', "w") as outF:
+        for m in d:
+            outF.write(m + ' ' + str(d[m]) + '\n')
 
 
 def write_out_KernelStatus():
