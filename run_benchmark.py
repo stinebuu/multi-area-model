@@ -19,34 +19,16 @@ mpirun/srun python run_benchmark.py N_scaling num_processes t_sim K_scaling nest
 nest_version can be 2, 3 or rng
 """
 
-N_scaling = float(sys.argv[1])
-num_processes = int(sys.argv[2])
-t_sim = float(sys.argv[3])
-K_scaling = float(sys.argv[4])
-NEST_version = sys.argv[5]
-STDOUT_PATH = sys.argv[6]
-
-
-print("load simulation and network labels\n")
-
-if N_scaling < 1:
-    N_scaling = N_scaling*1000
-N_scaling = int(N_scaling)
-
-# Load simulation and network labels
-labels_fn = os.path.join(base_path, 'label_files/labels_{}_{}_{}_{}.json'.format(N_scaling, num_processes, int(t_sim), NEST_version))
-
-print(labels_fn)
-with open(labels_fn, 'r') as f:
-    labels = json.load(f)
-
-label = labels['simulation_label']
-network_label = labels['network_label']
+data_path = sys.argv[1]
+data_folder_hash = sys.argv[2]
+NEST_version = sys.argv[3]
 
 print("load simulation parameters\n")
 
 # Load simulation parameters
-fn = os.path.join(data_path, label, '_'.join(('custom_params', label)))
+fn = os.path.join(data_path,
+                  data_folder_hash,
+                  '_'.join(('custom_params', str(nest.Rank()))))
 with open(fn, 'r') as f:
     custom_params = json.load(f)
 
@@ -58,8 +40,8 @@ if NEST_version == '2':
                        sim_spec=custom_params['sim_params'])
 elif NEST_version == '3':
     M = MultiAreaModel_3(network_label,
-                        simulation=True,
-                        sim_spec=custom_params['sim_params'])
+                         simulation=True,
+                         sim_spec=custom_params['sim_params'])
 elif NEST_version == 'rng':
     M = MultiAreaModel_rng(network_label,
                            simulation=True,
