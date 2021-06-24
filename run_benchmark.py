@@ -37,17 +37,23 @@ with open(fn, 'r') as f:
 print("Create network and simulate\n")
 
 if NEST_version == '2':
-    M = MultiAreaModel(network_label,
+    M = MultiAreaModel('benchmark',
                        simulation=True,
-                       sim_spec=custom_params['sim_params'])
+                       sim_spec=custom_params['sim_params'],
+                       data_path=data_path,
+                       data_folder_hash=data_folder_hash)
 elif NEST_version == '3':
-    M = MultiAreaModel_3(network_label,
+    M = MultiAreaModel_3('benchmark',
                          simulation=True,
-                         sim_spec=custom_params['sim_params'])
+                         sim_spec=custom_params['sim_params'],
+                         data_path=data_path,
+                         data_folder_hash=data_folder_hash)
 elif NEST_version == 'rng':
-    M = MultiAreaModel_rng(network_label,
+    M = MultiAreaModel_rng('benchmark',
                            simulation=True,
-                           sim_spec=custom_params['sim_params'])
+                           sim_spec=custom_params['sim_params'],
+                           data_path=data_path,
+                           data_folder_hash=data_folder_hash)
 print("simulate\n")
 M.simulation.simulate()
 

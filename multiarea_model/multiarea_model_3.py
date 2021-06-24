@@ -62,7 +62,8 @@ dicthash.FLOOR_SMALL_FLOATS = True
 
 class MultiAreaModel_3:
     def __init__(self, network_spec, theory=False, simulation=False,
-                 analysis=False, data_path=None, *args, **keywords):
+                 analysis=False, data_path=None, data_folder_hash=None,
+                 *args, **keywords):
         """
         Multiarea model class.
         An instance of the multiarea model with the given parameters.
@@ -83,6 +84,8 @@ class MultiAreaModel_3:
             whether to create an instance of the analysis class as member.
 
         """
+        self.data_path = data_path
+        self.data_folder_hash = data_folder_hash
         self.params = deepcopy(network_params)
         if isinstance(network_spec, dict):
             print("Initializing network from dictionary.")
@@ -107,12 +110,12 @@ class MultiAreaModel_3:
                                  mode='custom')
         else:
             print("Initializing network from label.")
-            parameter_fn = os.path.join(base_path,
-                                        'config_files',
-                                        '{}_config'.format(network_spec))
-            tmp_data_fn = os.path.join(base_path,
-                                       'config_files',
-                                       'custom_Data_Model_{}.json'.format(network_spec))
+            parameter_fn = os.path.join(data_path,
+                                        data_folder_hash,
+                                        'config')
+            tmp_data_fn = os.path.join(data_path,
+                                       data_folder_hash,
+                                       'custom_Data_Model.json')
             with open(parameter_fn, 'r') as f:
                 self.custom_params = json.load(f)
         nested_update(self.params, self.custom_params)
@@ -171,12 +174,12 @@ class MultiAreaModel_3:
                                                                   'replace_cc_input_source')])
 
         if isinstance(network_spec, dict):
-            parameter_fn = os.path.join(base_path,
-                                        'config_files',
-                                        '{}_config'.format(self.label))
-            data_fn = os.path.join(base_path,
-                                   'config_files',
-                                   'custom_Data_Model_{}.json'.format(self.label))
+            parameter_fn = os.path.join(data_path,
+                                        data_folder_hash,
+                                        'config')
+            data_fn = os.path.join(data_path,
+                                   data_folder_hash,
+                                   'custom_Data_Model.json')
 
             shutil.move(tmp_parameter_fn,
                         parameter_fn)
@@ -224,7 +227,8 @@ class MultiAreaModel_3:
         self.theory = Theory(self, theory_spec)
 
     def init_simulation(self, sim_spec):
-        self.simulation = Simulation(self, sim_spec, data_path)
+        self.simulation = Simulation(self, sim_spec, self.data_path,
+                                     self.data_folder_hash)
 
     def init_analysis(self, ana_spec):
         assert(hasattr(self, 'simulation'))

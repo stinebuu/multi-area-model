@@ -23,6 +23,7 @@ network_params, _ = NEW_SIM_PARAMS[mam_state][0]
 network_params['connection_params']['K_stable'] = os.path.join(base_path, 'K_stable.npy')
 network_params['N_scaling'] = N_scaling
 network_params['K_scaling'] = K_scaling
+network_params['fullscale_rates'] = os.path.join(base_path, 'tests/fullscale_rates.json')
 
 sim_params = {'t_sim': t_sim,
               'num_processes': num_processes,
@@ -31,6 +32,8 @@ sim_params = {'t_sim': t_sim,
               'master_seed': 1}
 
 theory_params = {'dt': 0.1}
+
+os.mkdir(os.path.join(data_path, data_folder_hash))
 
 if NEST_version == '2':
     print("NEST version 2.x\n")
