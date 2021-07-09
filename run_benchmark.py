@@ -8,7 +8,6 @@ import glob
 
 from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from multiarea_model.multiarea_helpers import write_out_timer_data
-from config import base_path, data_path
 
 """
 Create parameters.
@@ -22,8 +21,7 @@ nest_version can be 2, 3 or rng
 
 data_path = sys.argv[1]
 data_folder_hash = sys.argv[2]
-NEST_version = sys.argv[3]
-mam_state = sys.argv[4]  # Fig3: corresponds to figure 3 in schmidt et al. 2018: Groundstate
+mam_state = sys.argv[3]  # Fig3: corresponds to figure 3 in schmidt et al. 2018: Groundstate
                          # Fig5: corresponds to figure 5 in schmidt et al. 2018: Metastable
 
 print("load simulation parameters\n")
@@ -36,6 +34,13 @@ with open(fn, 'r') as f:
     custom_params = json.load(f)
 
 print("Create network and simulate\n")
+
+try:
+    nest.version()
+    NEST_version = '2'
+except:
+    nest.__version__
+    NEST_version = '3'
 
 if NEST_version == '2':
     M = MultiAreaModel('benchmark',
@@ -59,9 +64,10 @@ label = M.simulation.label
 write_out_timer_data(data_dir, label)
 
 # delete copies of custom_params
-custom_params_duplicates = glob.glob(os.path.join(
-    data_path,
-    data_folder_hash,
-    'custom_params_*'))
-for duplicate in custom_params_duplicates:
-    os.remove(duplicate)
+if NEST_version == '2':
+    custom_params_duplicates = glob.glob(os.path.join(
+        data_path,
+        data_folder_hash,
+        'custom_params_*'))
+    for duplicate in custom_params_duplicates:
+        os.remove(duplicate)

@@ -2,6 +2,7 @@ import numpy as np
 import os
 import sys
 import json
+import nest
 
 from multiarea_model import MultiAreaModel, MultiAreaModel_3#, MultiAreaModel_rng
 from config import base_path
@@ -12,10 +13,9 @@ N_scaling = float(sys.argv[1])
 num_processes = int(sys.argv[2])
 t_sim = float(sys.argv[3])
 K_scaling = float(sys.argv[4])
-NEST_version = sys.argv[5]
-data_path = sys.argv[6]
-data_folder_hash = sys.argv[7]
-mam_state = sys.argv[8]  # Fig3: corresponds to figure 3 in schmidt et al. 2018: Groundstate
+data_path = sys.argv[5]
+data_folder_hash = sys.argv[6]
+mam_state = sys.argv[7]  # Fig3: corresponds to figure 3 in schmidt et al. 2018: Groundstate
                          # Fig5: corresponds to figure 5 in schmidt et al. 2018: Metastable
 
 network_params, _ = NEW_SIM_PARAMS[mam_state][0]
@@ -34,6 +34,13 @@ sim_params = {'t_sim': t_sim,
 theory_params = {'dt': 0.1}
 
 os.mkdir(os.path.join(data_path, data_folder_hash))
+
+try:
+    nest.version()
+    NEST_version = '2'
+except:
+    nest.__version__
+    NEST_version = '3'
 
 if NEST_version == '2':
     print("NEST version 2.x\n")
