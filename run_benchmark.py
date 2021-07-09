@@ -4,6 +4,7 @@ import sys
 import shutil
 import json
 import nest
+import glob
 
 from multiarea_model import MultiAreaModel, MultiAreaModel_3
 from multiarea_model.multiarea_helpers import write_out_timer_data
@@ -48,12 +49,6 @@ elif NEST_version == '3':
                          sim_spec=custom_params['sim_params'],
                          data_path=data_path,
                          data_folder_hash=data_folder_hash)
-elif NEST_version == 'rng':
-    M = MultiAreaModel_rng('benchmark',
-                           simulation=True,
-                           sim_spec=custom_params['sim_params'],
-                           data_path=data_path,
-                           data_folder_hash=data_folder_hash)
 print("simulate\n")
 M.simulation.simulate()
 
@@ -62,3 +57,11 @@ label = M.simulation.label
 
 # Write out timer data
 write_out_timer_data(data_dir, label)
+
+# delete copies of custom_params
+custom_params_duplicates = glob.glob(os.path.join(
+    data_path,
+    data_folder_hash,
+    'custom_params_*'))
+for duplicate in custom_params_duplicates:
+    os.remove(duplicate)

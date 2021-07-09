@@ -41,6 +41,11 @@ def start_job(label, data_path, data_folder_hash,
     for i in range(sim_params['num_processes']):
         shutil.copy(fn, '_'.join((fn, str(i))))
 
+    # Create folder for storing simulation output
+    os.mkdir(os.path.join(data_path,
+                          data_folder_hash,
+                          'recordings'))
+
     # If chosen, register simulation to sumatra
     if sumatra:
         if sumatra_found:

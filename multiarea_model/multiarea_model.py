@@ -110,11 +110,11 @@ class MultiAreaModel:
                                  mode='custom')
         else:
             print("Initializing network from label.")
-            parameter_fn = os.path.join(base_path,
-                                        'config_files',
-                                        '_config')
-            tmp_data_fn = os.path.join(base_path,
-                                       'config_files',
+            parameter_fn = os.path.join(data_path,
+                                        data_folder_hash,
+                                        'config')
+            tmp_data_fn = os.path.join(data_path,
+                                       data_folder_hash,
                                        'custom_Data_Model.json')
             with open(parameter_fn, 'r') as f:
                 self.custom_params = json.load(f)
@@ -171,20 +171,17 @@ class MultiAreaModel:
                                                                   'replace_cc_input_source')])
 
         if isinstance(network_spec, dict):
-            parameter_fn = os.path.join(base_path,
-                                        'config_files',
-                                        '{}_config'.format(self.label))
-            data_fn = os.path.join(base_path,
-                                   'config_files',
-                                   'custom_Data_Model_{}.json'.format(self.label))
+            parameter_fn = os.path.join(data_path,
+                                        data_folder_hash,
+                                        'config')
+            data_fn = os.path.join(data_path,
+                                   data_folder_hash,
+                                   'custom_Data_Model.json')
 
             shutil.move(tmp_parameter_fn,
                         parameter_fn)
             shutil.move(tmp_data_fn,
                         data_fn)
-
-        elif isinstance(network_spec, str):
-            assert(network_spec == self.label)
 
         # Initialize member classes
         if theory:

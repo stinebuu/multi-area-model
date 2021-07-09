@@ -186,9 +186,6 @@ class MultiAreaModel_3:
             shutil.move(tmp_data_fn,
                         data_fn)
 
-        elif isinstance(network_spec, str):
-            assert(network_spec == self.label)
-
         # Initialize member classes
         if theory:
             if 'theory_spec' not in keywords:
